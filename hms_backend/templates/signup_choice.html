@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h2>Sign Up As</h2>
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Doctor</h5>
+                        <p class="card-text">Register as a doctor to manage your availability and appointments</p>
+                        <a href="{% url 'signup_doctor' %}" class="btn btn-primary">Sign Up as Doctor</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Patient</h5>
+                        <p class="card-text">Register as a patient to book appointments with doctors</p>
+                        <a href="{% url 'signup_patient' %}" class="btn btn-success">Sign Up as Patient</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4>Confirm Booking</h4>
+            </div>
+            <div class="card-body">
+                <h5>Dr. {{ availability.doctor.user.get_full_name }}</h5>
+                <p><strong>Date:</strong> {{ availability.date }}</p>
+                <p><strong>Time:</strong> {{ availability.start_time }} - {{ availability.end_time }}</p>
+                <p><strong>Specialization:</strong> {{ availability.doctor.specialization }}</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="alert alert-info">
+                        Please confirm your appointment booking.
+                    </div>
+                    <button type="submit" class="btn btn-success">Confirm Booking</button>
+                    <a href="{% url 'view_doctor_availability' availability.doctor.id %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

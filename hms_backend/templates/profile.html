@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-user-circle me-2"></i>My Profile</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="profileForm">
+                    {% csrf_token %}
+                    
+                    <div class="text-center mb-4">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-circle fa-5x text-primary"></i>
+                        </div>
+                        <h4 class="mt-3">{{ user.get_full_name }}</h4>
+                        <p class="text-muted">
+                            {% if user.doctor %}
+                                <span class="badge bg-primary">Doctor</span>
+                            {% elif user.patient %}
+                                <span class="badge bg-success">Patient</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">First Name</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Last Name</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email</label>
+                        <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Username</label>
+                        <input type="text" class="form-control" value="{{ user.username }}" disabled readonly>
+                        <small class="text-muted">Username cannot be changed</small>
+                    </div>
+
+                    {% if user.doctor %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Specialization</label>
+                                <select name="specialization" class="form-select" required>
+                                    <option value="CARDIOLOGY" {% if user.doctor.specialization == 'CARDIOLOGY' %}selected{% endif %}>Cardiology</option>
+                                    <option value="DERMATOLOGY" {% if user.doctor.specialization == 'DERMATOLOGY' %}selected{% endif %}>Dermatology</option>
+                                    <option value="NEUROLOGY" {% if user.doctor.specialization == 'NEUROLOGY' %}selected{% endif %}>Neurology</option>
+                                    <option value="PEDIATRICS" {% if user.doctor.specialization == 'PEDIATRICS' %}selected{% endif %}>Pediatrics</option>
+                                    <option value="ORTHOPEDICS" {% if user.doctor.specialization == 'ORTHOPEDICS' %}selected{% endif %}>Orthopedics</option>
+                                    <option value="GYNECOLOGY" {% if user.doctor.specialization == 'GYNECOLOGY' %}selected{% endif %}>Gynecology</option>
+                                    <option value="OPHTHALMOLOGY" {% if user.doctor.specialization == 'OPHTHALMOLOGY' %}selected{% endif %}>Ophthalmology</option>
+                                    <option value="ENT" {% if user.doctor.specialization == 'ENT' %}selected{% endif %}>ENT Specialist</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">License Number</label>
+                                <input type="text" name="license_number" class="form-control" value="{{ user.doctor.license_number }}" required>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Phone</label>
+                        <input type="text" name="phone" class="form-control" value="{% if user.doctor %}{{ user.doctor.phone }}{% elif user.patient %}{{ user.patient.phone }}{% endif %}" required>
+                    </div>
+
+                    {% if user.patient %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Date of Birth</label>
+                            <input type="date" name="date_of_birth" class="form-control" value="{{ user.patient.date_of_birth|date:'Y-m-d' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Address</label>
+                            <textarea name="address" class="form-control" rows="3">{{ user.patient.address }}</textarea>
+                        </div>
+                    {% endif %}
+
+                    <hr class="my-4">
+                    
+                    <h5 class="mb-3"><i class="fas fa-key me-2"></i>Change Password</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" name="current_password" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" name="new_password" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" name="confirm_password" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Email Test Section (for demo) -->
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Email Service Demo</h5>
+            </div>
+            <div class="card-body">
+                <p>Test the email notification service:</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary w-100 mb-2" onclick="testWelcomeEmail()">
+                            <i class="fas fa-paper-plane me-2"></i>Send Test Welcome Email
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-success w-100 mb-2" onclick="testBookingEmail()">
+                            <i class="fas fa-paper-plane me-2"></i>Send Test Booking Email
+                        </button>
+                    </div>
+                </div>
+                <div id="emailResult" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function testWelcomeEmail() {
+    const resultDiv = document.getElementById('emailResult');
+    resultDiv.innerHTML = '<div class="alert alert-info">Sending test email...</div>';
+    
+    fetch('http://localhost:3000/send-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            email_type: 'SIGNUP_WELCOME',
+            recipient: '{{ user.email }}',
+            name: '{{ user.first_name }}',
+            details: {}
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        resultDiv.innerHTML = '<div class="alert alert-success">✅ Test welcome email sent! Check your inbox.</div>';
+    })
+    .catch(error => {
+        resultDiv.innerHTML = '<div class="alert alert-danger">❌ Error sending email. Make sure email service is running on port 3000.</div>';
+    });
+}
+
+function testBookingEmail() {
+    const resultDiv = document.getElementById('emailResult');
+    resultDiv.innerHTML = '<div class="alert alert-info">Sending test email...</div>';
+    
+    fetch('http://localhost:3000/send-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            email_type: 'BOOKING_CONFIRMATION',
+            recipient: '{{ user.email }}',
+            name: '{{ user.first_name }}',
+            details: {
+                doctor_name: 'Dr. Smith',
+                date: '2026-03-15',
+                time: '10:00 AM - 11:00 AM',
+                specialization: 'Cardiology'
+            }
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        resultDiv.innerHTML = '<div class="alert alert-success">✅ Test booking email sent! Check your inbox.</div>';
+    })
+    .catch(error => {
+        resultDiv.innerHTML = '<div class="alert alert-danger">❌ Error sending email. Make sure email service is running on port 3000.</div>';
+    });
+}
+</script>
+{% endblock %}

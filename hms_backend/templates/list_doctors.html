@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Available Doctors</h2>
+<div class="row mt-4">
+    {% for doctor in doctors %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Dr. {{ doctor.user.get_full_name }}</h5>
+                    <p class="card-text">
+                        <strong>Specialization:</strong> {{ doctor.specialization }}<br>
+                        <strong>License:</strong> {{ doctor.license_number }}
+                    </p>
+                    <a href="{% url 'view_doctor_availability' doctor.id %}" class="btn btn-primary">View Availability</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p>No doctors available</p>
+    {% endfor %}
+</div>
+{% endblock %}

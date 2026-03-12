@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>My Appointments</h2>
+        <p>Welcome, {{ user.patient.user.get_full_name }}</p>
+        <a href="{% url 'patient_dashboard' %}" class="btn btn-primary mb-3">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5>Your Appointments</h5>
+            </div>
+            <div class="card-body">
+                {% if appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Doctor</th>
+                                    <th>Specialization</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in appointments %}
+                                    <tr>
+                                        <td>Dr. {{ booking.doctor.user.get_full_name }}</td>
+                                        <td>{{ booking.doctor.specialization }}</td>
+                                        <td>{{ booking.availability.date }}</td>
+                                        <td>{{ booking.availability.start_time }} - {{ booking.availability.end_time }}</td>
+                                        <td>
+                                            {% if booking.status == 'confirmed' %}
+                                                <span class="badge bg-success">Confirmed</span>
+                                            {% elif booking.status == 'cancelled' %}
+                                                <span class="badge bg-danger">Cancelled</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if booking.status == 'confirmed' and booking.availability.date >= now %}
+                                                <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this appointment?')">Cancel</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No appointments found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

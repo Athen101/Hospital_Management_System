@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4>Add Availability Slot</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label>Date</label>
+                        <input type="date" name="date" class="form-control" 
+                               min="{{ today|date:'Y-m-d' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Start Time</label>
+                        <input type="time" name="start_time" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>End Time</label>
+                        <input type="time" name="end_time" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Slot</button>
+                    <a href="{% url 'doctor_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

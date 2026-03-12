@@ -1,0 +1,40 @@
+service: hms-email-service
+
+frameworkVersion: '4'
+configValidationMode: off  # Disable validation warnings
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  timeout: 30
+  environment:
+    SMTP_SERVER: smtp.gmail.com
+    SMTP_PORT: 587
+    SMTP_USERNAME: ${env:SMTP_USERNAME}
+    SMTP_PASSWORD: ${env:SMTP_PASSWORD}
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    noPrependStageInUrl: true
+
+functions:
+  sendEmail:
+    handler: handler.send_email
+    timeout: 30
+    events:
+      - httpApi:
+          path: /send-email
+          method: post
+          # No CORS needed!
+
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!package.json'
+    - '!package-lock.json'
+    - '!.env'

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0 rounded-lg">
+            <div class="card-header bg-primary text-white text-center py-4">
+                <h3 class="mb-0">Doctor Registration</h3>
+                <p class="mb-0 mt-2">Join our team of medical professionals</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">First Name</label>
+                            <input type="text" name="first_name" class="form-control form-control-lg" placeholder="Enter first name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Last Name</label>
+                            <input type="text" name="last_name" class="form-control form-control-lg" placeholder="Enter last name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" name="email" class="form-control form-control-lg" placeholder="doctor@hospital.com" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Username</label>
+                            <input type="text" name="username" class="form-control form-control-lg" placeholder="Choose username" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Password</label>
+                            <input type="password" name="password" class="form-control form-control-lg" placeholder="Create password" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Phone Number</label>
+                            <input type="text" name="phone" class="form-control form-control-lg" placeholder="+91 12345 67890" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Specialization</label>
+                            <select name="specialization" class="form-select form-control-lg" required>
+                                <option value="" selected disabled>Select Specialization</option>
+                                <option value="CARDIOLOGY">Cardiology</option>
+                                <option value="DERMATOLOGY">Dermatology</option>
+                                <option value="NEUROLOGY">Neurology</option>
+                                <option value="PEDIATRICS">Pediatrics</option>
+                                <option value="ORTHOPEDICS">Orthopedics</option>
+                                <option value="GYNECOLOGY">Gynecology</option>
+                                <option value="OPHTHALMOLOGY">Ophthalmology</option>
+                                <option value="ENT">ENT Specialist</option>
+                                <option value="PSYCHIATRY">Psychiatry</option>
+                                <option value="RADIOLOGY">Radiology</option>
+                                <option value="ANESTHESIOLOGY">Anesthesiology</option>
+                                <option value="EMERGENCY">Emergency Medicine</option>
+                                <option value="FAMILY">Family Medicine</option>
+                                <option value="INTERNAL">Internal Medicine</option>
+                                <option value="ONCOLOGY">Oncology</option>
+                                <option value="UROLOGY">Urology</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">License Number</label>
+                            <input type="text" name="license_number" class="form-control form-control-lg" placeholder="Medical license #" required>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Register as Doctor</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center py-3">
+                <p class="mb-0">Already have an account? <a href="{% url 'login' %}" class="text-primary">Login here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
