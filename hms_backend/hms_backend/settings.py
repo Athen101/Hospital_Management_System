@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-&disw55*7cstmu^trz#e-4yazfdch5_ui=)on=p0kur+063dlb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -59,7 +59,7 @@ ROOT_URLCONF = 'hms_backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # This should be exactly this
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -110,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'  # Changed from UTC to IST
 
 USE_I18N = True
 
@@ -120,11 +120,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
-
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -135,4 +130,34 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Email Service Configuration
 EMAIL_SERVICE_URL = 'http://localhost:3000/send-email'
+
+# Google Calendar Configuration
+GOOGLE_CALENDAR = {
+    'SCOPES': ['https://www.googleapis.com/auth/calendar'],
+    'REDIRECT_URI': 'http://localhost:8000/oauth2callback',
+    'CREDENTIALS_FILE': BASE_DIR / 'credentials.json',
+    'TOKEN_DIR': BASE_DIR / 'google_tokens',
+}
+
+# Create token directory if it doesn't exist
+os.makedirs(BASE_DIR / 'google_tokens', exist_ok=True)
+
+# Login URLs
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+
+# Session settings (optional)
+SESSION_COOKIE_AGE = 86400  # 24 hours in seconds
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Security settings for development (adjust for production)
+if DEBUG:
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+else:
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+
