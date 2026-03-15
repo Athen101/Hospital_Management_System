@@ -61,6 +61,14 @@
                                     <option value="GYNECOLOGY" {% if user.doctor.specialization == 'GYNECOLOGY' %}selected{% endif %}>Gynecology</option>
                                     <option value="OPHTHALMOLOGY" {% if user.doctor.specialization == 'OPHTHALMOLOGY' %}selected{% endif %}>Ophthalmology</option>
                                     <option value="ENT" {% if user.doctor.specialization == 'ENT' %}selected{% endif %}>ENT Specialist</option>
+                                    <option value="PSYCHIATRY" {% if user.doctor.specialization == 'PSYCHIATRY' %}selected{% endif %}>Psychiatry</option>
+                                    <option value="RADIOLOGY" {% if user.doctor.specialization == 'RADIOLOGY' %}selected{% endif %}>Radiology</option>
+                                    <option value="ANESTHESIOLOGY" {% if user.doctor.specialization == 'ANESTHESIOLOGY' %}selected{% endif %}>Anesthesiology</option>
+                                    <option value="EMERGENCY" {% if user.doctor.specialization == 'EMERGENCY' %}selected{% endif %}>Emergency Medicine</option>
+                                    <option value="FAMILY" {% if user.doctor.specialization == 'FAMILY' %}selected{% endif %}>Family Medicine</option>
+                                    <option value="INTERNAL" {% if user.doctor.specialization == 'INTERNAL' %}selected{% endif %}>Internal Medicine</option>
+                                    <option value="ONCOLOGY" {% if user.doctor.specialization == 'ONCOLOGY' %}selected{% endif %}>Oncology</option>
+                                    <option value="UROLOGY" {% if user.doctor.specialization == 'UROLOGY' %}selected{% endif %}>Urology</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -111,6 +119,47 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Google Calendar Integration Section -->
+        <div class="card mt-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fab fa-google me-2"></i>Google Calendar Integration</h5>
+            </div>
+            <div class="card-body">
+                <p>Connect your Google Calendar to automatically create events when appointments are booked.</p>
+                
+                <div id="calendarStatus" class="mb-3">
+                    {% if calendar_connected %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>✅ Google Calendar is connected!</strong>
+                            <p class="mb-0 mt-2 small">Appointments will automatically appear in your Google Calendar.</p>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>⚠️ Google Calendar not connected</strong>
+                            <p class="mb-0 mt-2 small">Connect your calendar to sync appointments automatically.</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-grid gap-2">
+                    {% if calendar_connected %}
+                        <button class="btn btn-outline-danger" onclick="checkCalendarStatus()" id="calendarBtn">
+                            <i class="fas fa-sync me-2"></i>Reconnect Google Calendar
+                        </button>
+                        <small class="text-muted text-center">Click to reconnect with a different account</small>
+                    {% else %}
+                        <a href="{% url 'connect_google_calendar' %}" class="btn btn-danger" id="calendarBtn">
+                            <i class="fab fa-google me-2"></i>Connect Google Calendar
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <div id="calendarResult" class="mt-3"></div>
             </div>
         </div>
 
@@ -193,6 +242,32 @@ function testBookingEmail() {
     .catch(error => {
         resultDiv.innerHTML = '<div class="alert alert-danger">❌ Error sending email. Make sure email service is running on port 3000.</div>';
     });
+}
+
+function checkCalendarStatus() {
+    const resultDiv = document.getElementById('calendarResult');
+    const btn = document.getElementById('calendarBtn');
+    
+    resultDiv.innerHTML = '<div class="alert alert-info">Checking calendar status...</div>';
+    
+    fetch('{% url "calendar_status" %}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.connected) {
+                resultDiv.innerHTML = '<div class="alert alert-success">✅ Google Calendar is connected and working!</div>';
+                setTimeout(() => {
+                    window.location.href = '{% url "connect_google_calendar" %}';
+                }, 1500);
+            } else {
+                resultDiv.innerHTML = '<div class="alert alert-warning">⚠️ Not connected. Redirecting to login...</div>';
+                setTimeout(() => {
+                    window.location.href = '{% url "connect_google_calendar" %}';
+                }, 1500);
+            }
+        })
+        .catch(error => {
+            resultDiv.innerHTML = '<div class="alert alert-danger">❌ Error checking status</div>';
+        });
 }
 </script>
 {% endblock %}
