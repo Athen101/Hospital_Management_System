@@ -1,3 +1,6 @@
+import os
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # Allow HTTP for local development
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.models import User
@@ -5,10 +8,17 @@ from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+import os
+import pickle
 
 from doctors.models import Doctor
 from patients.models import Patient
-from .email_utils import send_email  # Import the email utility
+from .email_utils import send_email
+from .google_calendar import get_auth_url, is_calendar_connected
+
+# Google OAuth callback
+from google_auth_oauthlib.flow import Flow
+from google.oauth2.credentials import Credentials
 
 def home(request):
     return render(request, 'home.html')
@@ -130,6 +140,9 @@ def logout_view(request):
 @login_required
 def profile(request):
     """User profile view for editing personal information"""
+    # Check calendar connection status
+    calendar_connected = is_calendar_connected(request.user)
+    
     if request.method == 'POST':
         # Get the current user
         user = request.user
@@ -168,7 +181,7 @@ def profile(request):
                 if user.check_password(current_password):
                     user.set_password(new_password)
                     user.save()
-                    update_session_auth_hash(request, user)  # Important! Keeps user logged in
+                    update_session_auth_hash(request, user)
                     messages.success(request, 'Password changed successfully!')
                 else:
                     messages.error(request, 'Current password is incorrect!')
@@ -177,7 +190,9 @@ def profile(request):
         
         return redirect('profile')
     
-    return render(request, 'profile.html')
+    return render(request, 'profile.html', {
+        'calendar_connected': calendar_connected
+    })
 
 @login_required
 def test_email(request):
@@ -195,3 +210,101 @@ def test_email(request):
         messages.error(request, '❌ Email failed. Make sure email service is running on port 3000.')
     
     return redirect('profile')
+
+@login_required
+def connect_google_calendar(request):
+    """Initiate Google Calendar OAuth flow"""
+    auth_url = get_auth_url(request.user)
+    if auth_url:
+        return redirect(auth_url)
+    else:
+        messages.error(request, 'Failed to initialize Google Calendar connection. Check credentials.json file.')
+        return redirect('profile')
+
+def oauth2callback(request):
+    """Handle OAuth2 callback from Google"""
+    try:
+        print("\n" + "="*50)
+        print("🔍 OAUTH CALLBACK RECEIVED")
+        print("="*50)
+        
+        # Get the state (user ID) from request
+        user_id = request.GET.get('state')
+        code = request.GET.get('code')
+        
+        print(f"📌 State (user_id): {user_id}")
+        print(f"📌 Code received: {'Yes' if code else 'No'}")
+        
+        if not user_id:
+            print("❌ No user ID in state")
+            messages.error(request, 'Invalid OAuth callback: No user ID')
+            return redirect('profile')
+        
+        if not code:
+            print("❌ No authorization code received")
+            messages.error(request, 'No authorization code from Google')
+            return redirect('profile')
+        
+        print(f"🔄 Creating Flow with redirect_uri: http://localhost:8000/oauth2callback")
+        
+        # Create flow instance with EXACT same redirect URI
+        flow = Flow.from_client_secrets_file(
+            'credentials.json',
+            scopes=['https://www.googleapis.com/auth/calendar'],
+            redirect_uri='http://localhost:8000/oauth2callback'
+        )
+        
+        # Exchange authorization code for credentials
+        print("🔄 Exchanging code for tokens...")
+        flow.fetch_token(authorization_response=request.build_absolute_uri())
+        credentials = flow.credentials
+        print("✅ Token exchange successful!")
+        
+        # Save credentials
+        import os
+        import pickle
+        os.makedirs('google_tokens', exist_ok=True)
+        token_path = f'google_tokens/{user_id}_token.pickle'
+        
+        with open(token_path, 'wb') as token:
+            pickle.dump(credentials, token)
+        print(f"✅ Token saved to: {token_path}")
+        
+        # Update user's calendar connection status
+        try:
+            from django.contrib.auth.models import User
+            user = User.objects.get(id=user_id)
+            if hasattr(user, 'doctor'):
+                user.doctor.google_calendar_connected = True
+                user.doctor.save()
+                print(f"✅ Doctor calendar status updated")
+            elif hasattr(user, 'patient'):
+                user.patient.google_calendar_connected = True
+                user.patient.save()
+                print(f"✅ Patient calendar status updated")
+        except Exception as e:
+            print(f"⚠️ Could not update user status: {e}")
+        
+        print("="*50)
+        print("✅ SUCCESS! Google Calendar connected!")
+        print("="*50)
+        
+        messages.success(request, '✅ Google Calendar connected successfully!')
+        return redirect('profile')
+        
+    except Exception as e:
+        print("\n❌ ERROR IN CALLBACK:")
+        print(f"   Type: {type(e).__name__}")
+        print(f"   Message: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        print("="*50)
+        
+        messages.error(request, f'Failed to connect Google Calendar: {str(e)}')
+        return redirect('profile')
+
+@login_required
+def calendar_status(request):
+    """AJAX endpoint to check calendar connection status"""
+    connected = is_calendar_connected(request.user)
+    return JsonResponse({'connected': connected})
