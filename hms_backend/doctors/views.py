@@ -89,6 +89,7 @@ def delete_availability(request, availability_id):
     
     return redirect('doctor_dashboard')
 
+
 @login_required
 def doctor_appointments(request):
     try:
@@ -101,4 +102,7 @@ def doctor_appointments(request):
         doctor=doctor
     ).select_related('patient', 'availability').order_by('-availability__date', '-availability__start_time')
     
-    return render(request, 'doctor_appointments.html', {'appointments': appointments})
+    return render(request, 'doctor_appointments.html', {
+        'appointments': appointments,
+        'now': timezone.now().date()  # Add this
+    })
